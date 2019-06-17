@@ -48,7 +48,7 @@ func TestLexerKeyword(t *testing.T) {
 		t,
 		"ftest test testf testf",
 		[]testToken{
-			{"Ident", "ftest"},
+			{"Ident3", "ftest"},
 			{"Whitespace", " "},
 			{"Test", "test"},
 			{"Whitespace", " "},
@@ -62,7 +62,7 @@ func TestLexerKeyword(t *testing.T) {
 		t,
 		"fblock block blockf blockf",
 		[]testToken{
-			{"Ident", "fblock"},
+			{"Ident3", "fblock"},
 			{"Whitespace", " "},
 			{"Block", "block"},
 			{"Whitespace", " "},
@@ -99,7 +99,7 @@ func TestLexerComment(t *testing.T) {
 			{"Whitespace", "\n"},
 			{"MultiLineComment", "/*h\nb a*/"},
 			{"Whitespace", "\n"},
-			{"Ident", "hello"},
+			{"Ident3", "hello"},
 			{"Whitespace", " "},
 			{"MultiLineComment", "/* */"},
 		},
@@ -109,7 +109,7 @@ func TestLexerComment(t *testing.T) {
 func TestLexerSeperators(t *testing.T) {
 	lexerExpect(
 		t,
-		"(){}[]->==>;",
+		"(){}[]->==>;..",
 		[]testToken{
 			{"Lparen", "("},
 			{"Rparen", ")"},
@@ -119,7 +119,8 @@ func TestLexerSeperators(t *testing.T) {
 			{"Rbrak", "]"},
 			{"Arrow", "->"},
 			{"TestArrow", "==>"},
-			{"SemiColon", ";"},
+			{"Semicolon", ";"},
+			{"Ellipsis", ".."},
 		},
 	)
 }
@@ -127,11 +128,12 @@ func TestLexerSeperators(t *testing.T) {
 func TestLexerType(t *testing.T) {
 	lexerExpect(
 		t,
-		"d0 d32 dd5",
+		"d0 d32 dd5 d54d",
 		[]testToken{
 			{"Type", "d0"}, {"Whitespace", " "},
 			{"Type", "d32"}, {"Whitespace", " "},
-			{"Ident", "dd5"},
+			{"Ident2", "dd5"}, {"Whitespace", " "},
+			{"Ident2", "d54d"},
 		},
 	)
 }
