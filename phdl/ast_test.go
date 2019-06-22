@@ -223,3 +223,57 @@ func TestCompileExpr(t *testing.T) {
 	Lfail("0b2")
 
 }
+
+func TestCompileTestBlock(t *testing.T) {
+	Parser := participle.MustBuild(
+		&TestBlock{},
+		participle.Lexer(Lexer),
+		participle.Elide("Whitespace", "OneLineComment", "MultiLineComment"),
+	)
+
+	astfile := &AstFile{Blocks: map[string]*AstBlock{
+		"f": &AstBlock{Name: "f"},
+	}}
+
+	Comp := func(prog string) (*AstTest, error) {
+		t.Helper()
+
+		ptree := &TestBlock{}
+		err := Parser.ParseString(prog, ptree)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		return CompileTestBlock(astfile, ptree)
+	}
+
+	ast, err := Comp(`
+		test test1(f) {
+			1, 2, 3 ==> 1, 2;
+			3, 2, 1 ==> 2, 1;
+		}
+	`)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	expected := "(test1 f [([(1 0 0) (2 0 0) (3 0 0)] [(1 0 0) (2 0 0)]) ([(3 0 0) (2 0 0) (1 0 0)] [(2 0 0) (1 0 0)])])"
+	if ast.String() != expected {
+		t.Errorf("expected/got:\n%s\n%s\n", expected, ast.String())
+	}
+
+	if ast.Block != astfile.Blocks["f"] {
+		t.Error("expected test's block to be same as global block")
+	}
+
+	_, err = Comp("test test2(g) {}")
+	if err == nil {
+		t.Error("expected block not found error")
+	}
+
+	_, err = Comp("test test3(f) { a ==> 8; }")
+	if err == nil {
+		t.Error("conn not found error")
+	}
+}
