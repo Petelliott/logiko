@@ -11,6 +11,14 @@ type AstFile struct {
 	Tests  map[string]*AstTest
 }
 
+func (af AstFile) String() string {
+	return fmt.Sprintf(
+		"(%v %v)",
+		af.Blocks,
+		af.Tests,
+	)
+}
+
 func CompileFile(file *File) (*AstFile, error) {
 	astfile := &AstFile{make(map[string]*AstBlock), make(map[string]*AstTest)}
 	var err error
@@ -38,6 +46,17 @@ type AstBlock struct {
 	Rets   []*AstConn
 	Vars map[string]*AstConn
 	Stmts []*AstStmt
+}
+
+func (ab AstBlock) String() string {
+	return fmt.Sprintf(
+		"(%v %v %v %v %v)",
+		ab.Name,
+		ab.Args,
+		ab.Rets,
+		ab.Vars,
+		ab.Stmts,
+	)
 }
 
 func declToConn(d *Declaration) (*AstConn, error) {
@@ -89,10 +108,27 @@ type AstConn struct {
 	Width int
 }
 
+func (ac AstConn) String() string {
+	return fmt.Sprintf(
+		"(%v %v)",
+		ac.Name,
+		ac.Width,
+	)
+}
+
 type AstStmt struct {
 	Args []*AstExpr
 	Op   *AstBlock
 	Rets []*AstExpr
+}
+
+func (as AstStmt) String() string {
+	return fmt.Sprintf(
+		"(%v %v %v)",
+		as.Op,
+		as.Args,
+		as.Rets,
+	)
 }
 
 func CompileStmt(astfile *AstFile, block *AstBlock, stmt *Statement) (*AstStmt, error) {
@@ -133,6 +169,24 @@ type AstExpr struct {
 	Hi      int
 }
 
+func (ae AstExpr) String() string {
+	if ae.Conn == nil {
+		return fmt.Sprintf(
+			"(%v %v %v)",
+			ae.Literal,
+			ae.Lo,
+			ae.Hi,
+		)
+	} else {
+		return fmt.Sprintf(
+			"(%v %v %v)",
+			ae.Conn,
+			ae.Lo,
+			ae.Hi,
+		)
+	}
+}
+
 func CompileExpr(block *AstBlock, expr *Expr) (*AstExpr, error) {
 	var conn *AstConn
 	if expr.Ident == nil {
@@ -155,14 +209,27 @@ func CompileExpr(block *AstBlock, expr *Expr) (*AstExpr, error) {
 		}
 	}
 
-	lo, err := strconv.Atoi(expr.Index.Lo)
-	if err != nil {
-		return nil, fmt.Errorf("CompileExpr: %s", err)
-	}
+	lo := 0
+	hi := 0
+	if expr.Index != nil {
+		var err error
+		lo, err = strconv.Atoi(expr.Index.Lo)
+		if err != nil {
+			return nil, fmt.Errorf("CompileExpr: %s", err)
+		}
 
-	hi, err := strconv.Atoi(expr.Index.Hi)
-	if err != nil {
-		return nil, fmt.Errorf("CompileExpr: %s", err)
+		hi := lo
+		if expr.Index.Hi != "" {
+			var err error
+			hi, err = strconv.Atoi(expr.Index.Hi)
+			if err != nil {
+				return nil, fmt.Errorf("CompileExpr: %s", err)
+			} else if hi < lo {
+				return nil, fmt.Errorf("CompileExpr: low index (%v)" +
+									   " is greater than high index (%v)",
+									   lo, hi)
+			}
+		}
 	}
 
 	return &AstExpr{
@@ -178,6 +245,15 @@ type AstTest struct {
 	Name  string
 	Block *AstBlock
 	Stmts []*AstTestStmt
+}
+
+func (at AstTest) String() string {
+	return fmt.Sprintf(
+		"(%v %v %v)",
+		at.Name,
+		at.Block.Name,
+		at.Stmts,
+	)
 }
 
 func CompileTestBlock(file *AstFile, test *TestBlock) (*AstTest, error) {
@@ -206,6 +282,14 @@ func CompileTestBlock(file *AstFile, test *TestBlock) (*AstTest, error) {
 type AstTestStmt struct {
 	Args []*AstExpr
 	Rets []*AstExpr
+}
+
+func (ats AstTestStmt) String() string {
+	return fmt.Sprintf(
+		"(%v %v)",
+		ats.Args,
+		ats.Rets,
+	)
 }
 
 func CompileTestStmt(test *AstTest, stmt *TestStmt) (*AstTestStmt, error) {

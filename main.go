@@ -4,15 +4,19 @@ import (
 	"github.com/petelliott/logiko/phdl"
 	"os"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 )
 
 func main() {
-	ast := &phdl.File{}
-	err := phdl.Parser.Parse(os.Stdin, ast)
+	ptree := &phdl.File{}
+	err := phdl.Parser.Parse(os.Stdin, ptree)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	spew.Dump(ast)
+	ast, err := phdl.CompileFile(ptree)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(ast)
 }
