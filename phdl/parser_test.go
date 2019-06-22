@@ -106,6 +106,17 @@ func TestLexerComment(t *testing.T) {
 	)
 }
 
+func TestLexerAsterixComment(t *testing.T) {
+	t.Skip("see bug #1")
+	lexerExpect(
+		t,
+		"/* * */",
+		[]testToken{
+			{"MultiLineComment", "/* * */"},
+		},
+	)
+}
+
 func TestLexerSeperators(t *testing.T) {
 	lexerExpect(
 		t,
