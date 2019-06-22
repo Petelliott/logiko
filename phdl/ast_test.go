@@ -277,3 +277,46 @@ func TestCompileTestBlock(t *testing.T) {
 		t.Error("conn not found error")
 	}
 }
+
+func TestCompileTestStmt(t *testing.T) {
+	Parser := participle.MustBuild(
+		&TestStmt{},
+		participle.Lexer(Lexer),
+		participle.Elide("Whitespace", "OneLineComment", "MultiLineComment"),
+	)
+
+	asttest := &AstTest{}
+
+	Comp := func(prog string) (*AstTestStmt, error) {
+		t.Helper()
+
+		ptree := &TestStmt{}
+		err := Parser.ParseString(prog, ptree)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		return CompileTestStmt(asttest, ptree)
+	}
+
+	ast, err := Comp("1,2 ==> 4;")
+	if err != nil {
+		t.Error(err)
+	}
+
+	expected := "([(1 0 0) (2 0 0)] [(4 0 0)])"
+	if ast.String() != expected {
+		t.Errorf("expected/got:\n%s\n%s\n", expected, ast.String())
+	}
+
+
+	_, err = Comp("1,2 ==> a;")
+	if err == nil {
+		t.Error("expected that conns are not allowed in tests")
+	}
+
+	_, err = Comp("1,a ==> 4;")
+	if err == nil {
+		t.Error("expected that conns are not allowed in tests")
+	}
+}
