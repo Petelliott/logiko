@@ -38,7 +38,9 @@ func (fc *FuncComponent) Update() {
 
 	newin := make([]PortType, len(fc.in))
 	for port, fun := range fc.in {
-		newin[port] = fun()
+		if fun != nil {
+			newin[port] = fun()
+		}
 	}
 
 	fc.fun(newin, fc.out)
