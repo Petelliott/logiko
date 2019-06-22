@@ -218,7 +218,7 @@ func CompileExpr(block *AstBlock, expr *Expr) (*AstExpr, error) {
 			return nil, fmt.Errorf("CompileExpr: %s", err)
 		}
 
-		hi := lo
+		hi = lo
 		if expr.Index.Hi != "" {
 			var err error
 			hi, err = strconv.Atoi(expr.Index.Hi)

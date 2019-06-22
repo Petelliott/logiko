@@ -129,3 +129,97 @@ func TestCompileStmt(t *testing.T) {
 		t.Error("different sybmols for 'a'")
 	}
 }
+
+func TestCompileExpr(t *testing.T) {
+	Parser := participle.MustBuild(
+		&Expr{},
+		participle.Lexer(Lexer),
+		participle.Elide("Whitespace", "OneLineComment", "MultiLineComment"),
+	)
+	testblock := &AstBlock{Name: "tb", Vars: map[string]*AstConn{
+		"a": &AstConn{"a", 32},
+		"b": &AstConn{"b", 32},
+	}}
+
+	Comp := func(prog string) (*AstExpr, error) {
+		t.Helper()
+
+		ptree := &Expr{}
+		err := Parser.ParseString(prog, ptree)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		return CompileExpr(testblock, ptree)
+	}
+
+	ast, err := Comp("a")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if ast.Conn != testblock.Vars["a"] {
+		t.Error("conn is not 'a'")
+	}
+
+	ast, err = Comp("a[7]")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if ast.Lo != 7 || ast.Hi != 7 {
+		t.Errorf("incorrect index bounds (l=%v, h=%v)", ast.Lo, ast.Hi)
+	}
+
+	ast, err = Comp("a[7..6]")
+	if err == nil {
+		t.Error("hi index to be higher than lo index")
+	}
+
+	Lcheck := func(lit string, exp int64) {
+		t.Helper()
+
+		ast, err = Comp(lit)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if ast.Conn != nil {
+			t.Error("non-nil conn on literal")
+		}
+
+		if ast.Literal != exp {
+			t.Errorf("expected: %v, got: %v", exp, ast.Literal)
+		}
+	}
+
+	Lfail := func(lit string) {
+		t.Helper()
+
+		_, err = Comp(lit)
+		if err == nil {
+			t.Error("expected to fail, didn't")
+		}
+	}
+
+	Lcheck("32", 32)
+	Lcheck("-32", -32)
+	Lcheck("0", 0)
+	Lcheck("-0", 0)
+	Lcheck("0x8f", 0x8f)
+	Lcheck("-0x8f", -0x8f)
+	Lcheck("0x11", 0x11)
+
+	Lfail("5a")
+
+	t.Skip("skipping rest of test: see bug #3")
+
+	Lcheck("0o11", 011)
+	Lcheck("-0o11", -011)
+	Lfail("0o8")
+
+	Lcheck("0b1010", 10)
+	Lcheck("-0b1010", -10)
+	Lfail("0b2")
+
+}
