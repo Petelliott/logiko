@@ -3,7 +3,6 @@ package phdl
 import (
 	"testing"
 	"strings"
-	_ "github.com/alecthomas/participle/lexer"
 )
 
 type testToken struct {

@@ -125,7 +125,7 @@ type AstStmt struct {
 func (as AstStmt) String() string {
 	return fmt.Sprintf(
 		"(%v %v %v)",
-		as.Op,
+		as.Op.Name,
 		as.Args,
 		as.Rets,
 	)
