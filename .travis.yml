@@ -1,7 +1,6 @@
 language: go
 
 go:
-  - "master"
   - "1.12.x"
 
 go_import_path: github.com/petelliott/logiko
