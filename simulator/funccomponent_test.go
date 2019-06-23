@@ -33,6 +33,14 @@ func TestRead(t *testing.T) {
 	fc.Update()
 
 	expect(t, PortType(12), fc.Read(0))
+
+	fc.Attach(0, func()PortType { return 8; })
+	fc.Update()
+	fc.Attach(1, func()PortType { return 13; })
+
+	fc.Update()
+
+	expect(t, PortType(21), fc.Read(0))
 }
 
 func TestPorts(t *testing.T) {

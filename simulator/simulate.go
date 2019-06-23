@@ -1,6 +1,5 @@
 package simulator
 
-
 // Sim is a Component that wraps an AttachableComponent for easy simulating
 type Sim struct {
 	comp   AttachableComponent
@@ -15,8 +14,10 @@ func NewSim(comp AttachableComponent) *Sim {
 	}
 
 	for idx, _ := range sim.inputs {
+		// closure over value, not variable
+		i := idx
 		comp.Attach(idx, func() PortType {
-			return sim.inputs[idx]
+			return sim.inputs[i]
 		})
 	}
 
