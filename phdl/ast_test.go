@@ -58,7 +58,7 @@ func TestCompileBlock(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := "(f [(a 1)] [(b 2)] map[a:(a 1) b:(b 2)] [(f2 [((a 1) 0 0)] [((b 2) 0 0)])])"
+	expected := "(f [(a 1)] [(b 2)] map[a:(a 1) b:(b 2)] [(f2 [((a 1) -1 0)] [((b 2) -1 0)])])"
 	if ast.String() != expected {
 		t.Errorf("expected/got:\n%s\n%s\n", expected, ast.String())
 	}
@@ -97,7 +97,7 @@ func TestCompileStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := "(f [((a 0) 0 0)] [((a 0) 0 0)])"
+	expected := "(f [((a 0) -1 0)] [((a 0) -1 0)])"
 	if ast.String() != expected {
 		t.Errorf("expected/got:\n%s\n%s\n", expected, ast.String())
 	}
@@ -120,7 +120,7 @@ func TestCompileStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected = "(f [(4 0 0)] [((a 0) 0 0)])"
+	expected = "(f [(4 -1 0)] [((a 0) -1 0)])"
 	if ast.String() != expected {
 		t.Errorf("expected/got:\n%s\n%s\n", expected, ast.String())
 	}
@@ -160,6 +160,14 @@ func TestCompileExpr(t *testing.T) {
 
 	if ast.Conn != testblock.Vars["a"] {
 		t.Error("conn is not 'a'")
+	}
+
+	if ast.Lo != -1 {
+		t.Errorf("expected %v, got %v", -1, ast.Lo)
+	}
+
+	if ast.HasIndex() {
+		t.Error("expected expr not to have index")
 	}
 
 	ast, err = Comp("a[7]")
@@ -258,7 +266,7 @@ func TestCompileTestBlock(t *testing.T) {
 		t.Error(err)
 	}
 
-	expected := "(test1 f [([(1 0 0) (2 0 0) (3 0 0)] [(1 0 0) (2 0 0)]) ([(3 0 0) (2 0 0) (1 0 0)] [(2 0 0) (1 0 0)])])"
+	expected := "(test1 f [([(1 -1 0) (2 -1 0) (3 -1 0)] [(1 -1 0) (2 -1 0)]) ([(3 -1 0) (2 -1 0) (1 -1 0)] [(2 -1 0) (1 -1 0)])])"
 	if ast.String() != expected {
 		t.Errorf("expected/got:\n%s\n%s\n", expected, ast.String())
 	}
@@ -304,7 +312,7 @@ func TestCompileTestStmt(t *testing.T) {
 		t.Error(err)
 	}
 
-	expected := "([(1 0 0) (2 0 0)] [(4 0 0)])"
+	expected := "([(1 -1 0) (2 -1 0)] [(4 -1 0)])"
 	if ast.String() != expected {
 		t.Errorf("expected/got:\n%s\n%s\n", expected, ast.String())
 	}

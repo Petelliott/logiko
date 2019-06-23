@@ -164,9 +164,13 @@ func CompileStmt(astfile *AstFile, block *AstBlock, stmt *Statement) (*AstStmt, 
 
 type AstExpr struct {
 	Literal int64
-	Conn    *AstConn
-	Lo      int
+	Conn    *AstConn // nil indicates Literal expr
+	Lo      int      // -1 indicates no index
 	Hi      int
+}
+
+func (ae AstExpr) HasIndex() bool {
+	return ae.Lo != -1
 }
 
 func (ae AstExpr) String() string {
@@ -209,7 +213,7 @@ func CompileExpr(block *AstBlock, expr *Expr) (*AstExpr, error) {
 		}
 	}
 
-	lo := 0
+	lo := -1
 	hi := 0
 	if expr.Index != nil {
 		var err error
