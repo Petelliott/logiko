@@ -3,6 +3,7 @@ package checks
 import (
 	"testing"
 	"github.com/petelliott/logiko/phdl"
+	"strings"
 )
 
 func TestTypeCheckFile(t *testing.T) {
@@ -108,8 +109,8 @@ func TestTypeCheckExpr(t *testing.T) {
 	}
 
 	err = TypeCheckExpr(1, &phdl.AstExpr{Hi: 2, Lo: 0})
-	if err == nil {
-		t.Error("expected error")
+	if err == nil || !strings.HasPrefix(err.Error(), "expected d1, got range") {
+		t.Error(err)
 	}
 
 	err = TypeCheckExpr(5, &phdl.AstExpr{
@@ -117,15 +118,16 @@ func TestTypeCheckExpr(t *testing.T) {
 		Lo: 0,
 		Hi: 4,
 	})
-	if err == nil {
-		t.Error("expected error")
+	if err == nil || !strings.HasPrefix(err.Error(), "attempting to get range") {
+		t.Error(err)
 	}
 
 	err = TypeCheckExpr(5, &phdl.AstExpr{
 		Conn: &phdl.AstConn{Name: "a", Width: 3},
+		Lo: -1,
 	})
-	if err == nil {
-		t.Error("expected error")
+	if err == nil || !strings.HasPrefix(err.Error(), "expected d5, got '") {
+		t.Error(err)
 	}
 
 	err = TypeCheckExpr(5, &phdl.AstExpr{
@@ -137,7 +139,7 @@ func TestTypeCheckExpr(t *testing.T) {
 	}
 
 	err = TypeCheckExpr(1, &phdl.AstExpr{Literal: 5})
-	if err == nil {
+	if err == nil || !strings.HasPrefix(err.Error(), "Literal") {
 		t.Error("expected error")
 	}
 }
