@@ -108,6 +108,10 @@ type AstConn struct {
 	Width int
 }
 
+func (ac AstConn) HasType() bool {
+	return ac.Width != 0
+}
+
 func (ac AstConn) String() string {
 	return fmt.Sprintf(
 		"(%v %v)",
