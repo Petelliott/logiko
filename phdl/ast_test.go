@@ -170,6 +170,20 @@ func TestCompileExpr(t *testing.T) {
 		t.Error("expected expr not to have index")
 	}
 
+	if !ast.Conn.HasType() {
+		t.Error("expected expr to have a type")
+	}
+
+	ast, err = Comp("c")
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if ast.Conn.HasType() {
+		t.Error("expected expr not to have a type")
+	}
+
 	ast, err = Comp("a[7]")
 	if err != nil {
 		t.Error(err)
