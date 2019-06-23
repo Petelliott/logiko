@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/petelliott/logiko/phdl"
+	"github.com/petelliott/logiko/phdl/checks"
 	"os"
 	"fmt"
 )
@@ -18,5 +19,11 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	err = checks.TypeCheckFile(ast)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	fmt.Println(ast)
 }
