@@ -34,9 +34,10 @@ func TypeCheckBlock(block *phdl.AstBlock) error {
 		}
 	}
 
+	// Error for all unknown type conns
 	for _, v := range block.Vars {
 		if !v.HasType() {
-			fmt.Errorf(
+			return fmt.Errorf(
 				"block '%s': type of conn '%s' cannot be determined",
 				block.Name, v.Name)
 		}
@@ -52,7 +53,6 @@ func TypeCheckStmt(stmt *phdl.AstStmt) error {
 			return err
 		}
 	}
-	return nil
 
 	for idx, ret := range stmt.Rets {
 		err := TypeCheckExpr(stmt.Op.Rets[idx].Width, ret)
@@ -87,10 +87,10 @@ func TypeCheckExpr(expected int, expr *phdl.AstExpr) error {
 					return fmt.Errorf(
 						"expected d%v, got '%v' (d%v)",
 						expected, expr.Conn.Name, expr.Conn.Width)
-				} else {
-					// type resolution
-					expr.Conn.Width = expected
 				}
+			} else {
+				// type resolution
+				expr.Conn.Width = expected
 			}
 		}
 	} else {
